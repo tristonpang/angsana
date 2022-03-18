@@ -1,10 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Text, Stats } from '@react-three/drei'
-import { MeshNormalMaterial, BoxBufferGeometry } from 'three'
-import { io } from 'socket.io-client'
-
 import './App.css'
+
+import React, {
+    useEffect,
+    useRef,
+    useState,
+} from 'react'
+
+import { io } from 'socket.io-client'
+import {
+    BoxGeometry,
+    MeshNormalMaterial,
+} from 'three'
+
+import {
+    PointerLockControls,
+    Stats,
+    Text,
+} from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
 
 const ControlsWrapper = ({ socket }) => {
     const controlsRef = useRef()
@@ -45,7 +58,7 @@ const ControlsWrapper = ({ socket }) => {
         }
     }, [controlsRef, socket])
 
-    return <OrbitControls ref={controlsRef} />
+    return <PointerLockControls ref={controlsRef} movementSpeed={2}  lookSpeed={0.5} />
 }
 
 const UserWrapper = ({ position, rotation, id }) => {
@@ -53,7 +66,7 @@ const UserWrapper = ({ position, rotation, id }) => {
         <mesh
             position={position}
             rotation={rotation}
-            geometry={new BoxBufferGeometry()}
+            geometry={new BoxGeometry()}
             material={new MeshNormalMaterial()}
         >
             {/* Optionally show the ID above the user's mesh */}
@@ -63,7 +76,7 @@ const UserWrapper = ({ position, rotation, id }) => {
                 anchorX="center"
                 anchorY="middle"
             >
-                {id}
+                {'User ' + id}
             </Text>
         </mesh>
     )
