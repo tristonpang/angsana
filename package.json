@@ -7,6 +7,7 @@
         "format": "prettier --write \"src/*.{js,jsx,json,md,ts,tsx,css}\""
     },
     "dependencies": {
+        "@react-three/cannon": "^5.0.1",
         "express": "^4.17.1",
         "express-promise-router": "^4.1.0",
         "prettier": "^2.4.1",

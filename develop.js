@@ -1,9 +1,10 @@
-import fs from 'fs'
 import express from 'express'
 import Router from 'express-promise-router'
-import { createServer } from 'vite'
-import viteConfig from './vite.config.js'
+import fs from 'fs'
 import { Server } from 'socket.io'
+import { createServer } from 'vite'
+
+import viteConfig from './vite.config.js'
 
 // Create router
 const router = Router()
