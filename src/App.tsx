@@ -23,7 +23,7 @@ import {
     Stats,
     Text,
 } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 
 const ControlsWrapper = ({ socket }) => {
     const controlsRef = useRef()
@@ -104,21 +104,14 @@ const Floor = () => {
 }
 
 const TestBall = () => {
-    const [physRef, api] = useSphere(() => ({ mass: 1, position: [0,2,0] }))
+    const movementUnit = 0.1
+    const [pos, setPos] = useState([0,1,0])
 
-    return (
-        <mesh
-            ref={physRef}
-        >
-            <sphereGeometry args={[1,32,16]}/>
-            <meshNormalMaterial />
-        </mesh>
-    )
-}
-
-function App() {
-    const [socketClient, setSocketClient] = useState(null)
-    const [clients, setClients] = useState({})
+    const [physRef, api] = useSphere(() => ({ 
+        mass: 1, 
+        position: pos,
+        type: 'Dynamic',
+    }))
 
     const usePersonControls = () => {
         const keys = {
@@ -157,6 +150,50 @@ function App() {
     }
 
     const { forward, backward, left, right, jump } = usePersonControls()
+
+    useFrame(({ clock }) => {
+        if (left && forward) {
+            api.position.set(pos[0] + movementUnit, pos[1], pos[2] + movementUnit)
+            setPos([pos[0] + movementUnit, pos[1], pos[2] + movementUnit])
+        } else if (right && forward) {
+            api.position.set(pos[0] - movementUnit, pos[1], pos[2] + movementUnit)
+            setPos([pos[0] - movementUnit, pos[1], pos[2] + movementUnit])
+        } else if (left && backward) {
+            api.position.set(pos[0] + movementUnit, pos[1], pos[2] - movementUnit)
+            setPos([pos[0] + movementUnit, pos[1], pos[2] - movementUnit])
+        } else if (right && backward) {
+            api.position.set(pos[0] - movementUnit, pos[1], pos[2] - movementUnit)
+            setPos([pos[0] - movementUnit, pos[1], pos[2] - movementUnit])
+        } else if (left) {
+            api.position.set(pos[0] + movementUnit, pos[1], pos[2])
+            setPos([pos[0] + movementUnit, pos[1], pos[2]])
+        } else if (forward) {
+            api.position.set(pos[0], pos[1], pos[2] + movementUnit)
+            setPos([pos[0], pos[1], pos[2] + movementUnit])
+        } else if (right) {
+            api.position.set(pos[0] - movementUnit, pos[1], pos[2])
+            setPos([pos[0] - movementUnit, pos[1], pos[2]])
+        } else if (backward) {
+            api.position.set(pos[0], pos[1], pos[2] - movementUnit)
+            setPos([pos[0], pos[1], pos[2] - movementUnit])
+        }
+    })
+
+    return (
+        <mesh
+            ref={physRef}
+        >
+            <sphereGeometry args={[1,32,16]}/>
+            <meshNormalMaterial />
+        </mesh>
+    )
+}
+
+function App() {
+    const [socketClient, setSocketClient] = useState(null)
+    const [clients, setClients] = useState({})
+
+    
 
     useEffect(() => {
         // On mount initialize the socket connection
