@@ -25,6 +25,50 @@ import {
 } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 
+const usePersonControls = () => {
+    const keys = {
+      KeyW: 'forward',
+      KeyS: 'backward',
+      KeyA: 'left',
+      KeyD: 'right',
+      Space: 'jump',
+      ArrowLeft: 'arrowLeft',
+      ArrowRight: 'arrowRight',
+      ArrowUp: 'arrowForward',
+      ArrowDown: 'arrowBackward',
+    }
+  
+    const moveFieldByKey = (key) => keys[key]
+  
+    const [movement, setMovement] = useState({
+      forward: false,
+      backward: false,
+      left: false,
+      right: false,
+      jump: false,
+      arrowLeft: false,
+      arrowRight: false,
+      arrowForward: false,
+      arrowBackward: false,
+    })
+  
+    useEffect(() => {
+      const handleKeyDown = (e) => {
+        setMovement((m) => ({ ...m, [moveFieldByKey(e.code)]: true }))
+      }
+      const handleKeyUp = (e) => {
+        setMovement((m) => ({ ...m, [moveFieldByKey(e.code)]: false }))
+      }
+      document.addEventListener('keydown', handleKeyDown)
+      document.addEventListener('keyup', handleKeyUp)
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown)
+        document.removeEventListener('keyup', handleKeyUp)
+      }
+    }, [])
+    return movement
+}
+
 const ControlsWrapper = ({ socket }) => {
     const controlsRef = useRef()
     const [updateCallback, setUpdateCallback] = useState(null)
@@ -63,6 +107,20 @@ const ControlsWrapper = ({ socket }) => {
                 )
         }
     }, [controlsRef, socket])
+
+    const { arrowForward, arrowBackward, arrowLeft, arrowRight } = usePersonControls()
+    
+    useFrame(() => {
+        if (arrowForward) {
+            controlsRef.current.moveForward(0.1)
+        } else if (arrowBackward) {
+            controlsRef.current.moveForward(-0.1)
+        } else if (arrowRight) {
+            controlsRef.current.moveRight(0.1)
+        } else if (arrowLeft) {
+            controlsRef.current.moveRight(-0.1)
+        }
+    })
 
     return <PointerLockControls ref={controlsRef} movementSpeed={2} lookSpeed={0.5} />
     // return <FirstPersonControls ref={controlsRef} movementSpeed={2} lookSpeed={0.5} />
@@ -112,42 +170,6 @@ const TestBall = () => {
         position: pos,
         type: 'Dynamic',
     }))
-
-    const usePersonControls = () => {
-        const keys = {
-          KeyW: 'forward',
-          KeyS: 'backward',
-          KeyA: 'left',
-          KeyD: 'right',
-          Space: 'jump',
-        }
-      
-        const moveFieldByKey = (key) => keys[key]
-      
-        const [movement, setMovement] = useState({
-          forward: false,
-          backward: false,
-          left: false,
-          right: false,
-          jump: false,
-        })
-      
-        useEffect(() => {
-          const handleKeyDown = (e) => {
-            setMovement((m) => ({ ...m, [moveFieldByKey(e.code)]: true }))
-          }
-          const handleKeyUp = (e) => {
-            setMovement((m) => ({ ...m, [moveFieldByKey(e.code)]: false }))
-          }
-          document.addEventListener('keydown', handleKeyDown)
-          document.addEventListener('keyup', handleKeyUp)
-          return () => {
-            document.removeEventListener('keydown', handleKeyDown)
-            document.removeEventListener('keyup', handleKeyUp)
-          }
-        }, [])
-        return movement
-    }
 
     const { forward, backward, left, right, jump } = usePersonControls()
 
